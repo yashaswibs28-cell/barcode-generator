@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Barcode Generator — Experimind Labs</title>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+  :root {
+    --blue-dark: #042C53;
+    --blue-mid: #185FA5;
+    --blue-light: #E6F1FB;
+    --blue-soft: #B5D4F4;
+    --teal: #1D9E75;
+    --teal-light: #E1F5EE;
+    --bg: #F7F9FC;
+    --surface: #ffffff;
+    --border: #DDE4EE;
+    --text-primary: #0D1B2A;
+    --text-secondary: #4A5A6E;
+    --text-muted: #8898AA;
+    --accent: #185FA5;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+ 
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+  }
+ 
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 68px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 8px rgba(4,44,83,0.06);
+  }
+ 
+  .logo-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+ 
+  .logo-icon {
+    width: 38px;
+    height: 38px;
+    background: var(--blue-mid);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+ 
+  .logo-icon svg { fill: white; }
+ 
+  .logo-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+  }
+ 
+  .logo-text .brand { font-weight: 600; font-size: 15px; letter-spacing: 0.04em; color: var(--blue-dark); }
+  .logo-text .tagline { font-size: 9.5px; letter-spacing: 0.12em; color: var(--text-muted); text-transform: uppercase; }
+ 
+  .header-badge {
+    background: var(--blue-light);
+    color: var(--blue-mid);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.03em;
+  }
+ 
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, var(--blue-dark) 0%, #0C447C 60%, #185FA5 100%);
+    color: white;
+    padding: 3.5rem 3rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+ 
+  .hero::before {
+    content: '';
+    position: absolute;
+    right: -60px;
+    top: -60px;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    border: 40px solid rgba(255,255,255,0.04);
+  }
+ 
+  .hero::after {
+    content: '';
+    position: absolute;
+    right: 80px;
+    bottom: -80px;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: 30px solid rgba(255,255,255,0.04);
+  }
+ 
+  .hero-inner { position: relative; z-index: 1; max-width: 700px; }
+  .hero h1 { font-size: 2rem; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 0.6rem; }
+  .hero p { font-size: 1rem; opacity: 0.72; font-weight: 300; line-height: 1.6; }
+ 
+  .hero-stats {
+    display: flex;
+    gap: 2.5rem;
+    margin-top: 2rem;
+  }
+ 
+  .stat { display: flex; flex-direction: column; }
+  .stat .num { font-family: 'Space Mono', monospace; font-size: 1.5rem; font-weight: 700; color: #85B7EB; }
+  .stat .label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.6; margin-top: 2px; }
+ 
+  /* MAIN LAYOUT */
+  .main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem 4rem;
+  }
+ 
+  /* TAB SWITCHER */
+  .tab-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 2rem;
+    background: var(--surface);
+    padding: 6px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    width: fit-content;
+  }
+ 
+  .tab-btn {
+    padding: 9px 22px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+ 
+  .tab-btn.active {
+    background: var(--blue-dark);
+    color: white;
+    box-shadow: 0 2px 10px rgba(4,44,83,0.25);
+  }
+ 
+  .tab-btn:hover:not(.active) { background: var(--blue-light); color: var(--blue-mid); }
+ 
+  .tab-icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.8;
+  }
+ 
+  /* PANELS */
+  .panel { display: none; }
+  .panel.active { display: block; }
+ 
+  .panel-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+ 
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 1.75rem;
+  }
+ 
+  .card-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+ 
+  .card-title::before {
+    content: '';
+    width: 3px;
+    height: 14px;
+    background: var(--blue-mid);
+    border-radius: 2px;
+  }
+ 
+  /* FORM ELEMENTS */
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    margin-top: 1rem;
+  }
+ 
+  label:first-of-type { margin-top: 0; }
+ 
+  input[type="number"],
+  input[type="text"],
+  select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text-primary);
+    background: var(--bg);
+    transition: border-color 0.2s;
+    outline: none;
+  }
+ 
+  input:focus, select:focus {
+    border-color: var(--blue-mid);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(24,95,165,0.1);
+  }
+ 
+  .input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+ 
+  .hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 5px;
+  }
+ 
+  /* GENERATE BUTTON */
+  .btn-generate {
+    width: 100%;
+    margin-top: 1.5rem;
+    padding: 13px;
+    background: var(--blue-dark);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+ 
+  .btn-generate:hover { background: var(--blue-mid); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(4,44,83,0.25); }
+  .btn-generate:active { transform: translateY(0); }
+ 
+  /* OUTPUT CARD */
+  .output-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 1.75rem;
+    position: sticky;
+    top: 88px;
+  }
+ 
+  .barcode-canvas-area {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 140px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    overflow-x: auto;
+  }
+ 
+  .barcode-canvas-area svg { max-width: 100%; }
+ 
+  .placeholder-msg {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+ 
+  .placeholder-msg .icon-bc {
+    font-family: 'Space Mono', monospace;
+    font-size: 30px;
+    letter-spacing: -2px;
+    color: var(--border);
+    display: block;
+    margin-bottom: 8px;
+  }
+ 
+  /* BATCH RESULTS */
+  .batch-scroll {
+    max-height: 420px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-right: 4px;
+  }
+ 
+  .batch-scroll::-webkit-scrollbar { width: 4px; }
+  .batch-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+ 
+  .bc-item {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+ 
+  .bc-item svg { flex-shrink: 0; }
+ 
+  .bc-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--text-secondary);
+    flex: 1;
+    text-align: center;
+  }
+ 
+  .btn-dl-single {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    color: var(--blue-mid);
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+ 
+  .btn-dl-single:hover { background: var(--blue-light); border-color: var(--blue-soft); }
+ 
+  /* DOWNLOAD ACTIONS */
+  .dl-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 0;
+  }
+ 
+  .btn-secondary {
+    flex: 1;
+    padding: 9px;
+    background: transparent;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+ 
+  .btn-secondary:hover { border-color: var(--blue-mid); color: var(--blue-mid); background: var(--blue-light); }
+ 
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+ 
+  .meta-row .count-badge {
+    background: var(--teal-light);
+    color: var(--teal);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 12px;
+  }
+ 
+  /* FORMAT PILLS */
+  .format-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+ 
+  .fmt-pill {
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--text-secondary);
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+  }
+ 
+  .fmt-pill.selected { border-color: var(--blue-mid); background: var(--blue-light); color: var(--blue-mid); }
+ 
+  /* FOOTER */
+  footer {
+    background: var(--blue-dark);
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+    font-size: 12px;
+    padding: 1.25rem;
+    letter-spacing: 0.04em;
+  }
+ 
+  footer strong { color: rgba(255,255,255,0.85); }
+ 
+  /* PROGRESS BAR */
+  .progress-wrap {
+    height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    display: none;
+  }
+ 
+  .progress-bar {
+    height: 100%;
+    background: var(--blue-mid);
+    border-radius: 4px;
+    transition: width 0.05s linear;
+  }
+ 
+  .error-msg {
+    background: #FCEBEB;
+    color: #A32D2D;
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 13px;
+    margin-top: 10px;
+    display: none;
+  }
+ 
+  @media (max-width: 768px) {
+    header { padding: 0 1.25rem; }
+    .hero { padding: 2rem 1.25rem 1.75rem; }
+    .hero h1 { font-size: 1.5rem; }
+    .main { padding: 1.5rem 1rem 3rem; }
+    .panel-grid { grid-template-columns: 1fr; }
+    .output-card { position: static; }
+  }
+</style>
+</head>
+<body>
+ 
+<!-- HEADER -->
+<header>
+  <div class="logo-area">
+    <div class="logo-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2 4h2v16H2V4zm3 0h1v16H5V4zm2 0h2v16H7V4zm3 0h1v16h-1V4zm2 0h1v16h-1V4zm2 0h2v16h-2V4zm3 0h1v16h-1V4zm2 0h2v16h-2V4z"/>
+      </svg>
+    </div>
+    <div class="logo-text">
+      <span class="brand">EXPERIMIND LABS</span>
+      <span class="tagline">Innovation for Education</span>
+    </div>
+  </div>
+  <div class="header-badge">Barcode Generator</div>
+</header>
+ 
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <h1>Barcode Generator Tool</h1>
+    <p>Generate professional barcodes in bulk or from custom text — instantly downloadable as SVG or PNG. Built for educators, administrators, and lab teams.</p>
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="num">CODE128</span>
+        <span class="label">Default Format</span>
+      </div>
+      <div class="stat">
+        <span class="num">∞</span>
+        <span class="label">Batch Support</span>
+      </div>
+      <div class="stat">
+        <span class="num">SVG/PNG</span>
+        <span class="label">Export Formats</span>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<!-- MAIN -->
+<div class="main">
+ 
+  <!-- TABS -->
+  <div class="tab-row">
+    <button class="tab-btn active" onclick="switchTab('range')" id="tab-range">
+      <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="3" height="14"/><rect x="7" y="5" width="1.5" height="14"/><rect x="10.5" y="5" width="3" height="14"/><rect x="15.5" y="5" width="1.5" height="14"/><rect x="19" y="5" width="3" height="14"/></svg>
+      Range Generator
+    </button>
+    <button class="tab-btn" onclick="switchTab('text')" id="tab-text">
+      <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 6H7a2 2 0 00-2 2v8a2 2 0 002 2h10a2 2 0 002-2V8a2 2 0 00-2-2z"/><path d="M8 12h8M12 9v6"/></svg>
+      Custom Text
+    </button>
+  </div>
+ 
+  <!-- PANEL: RANGE -->
+  <div class="panel active" id="panel-range">
+    <div class="panel-grid">
+      <!-- Left: Config -->
+      <div class="card">
+        <div class="card-title">Range Configuration</div>
+ 
+        <label>Start Number</label>
+        <input type="number" id="range-start" value="1001" min="0">
+ 
+        <label>End Number</label>
+        <input type="number" id="range-end" value="1010" min="0">
+ 
+        <label>Prefix (optional)</label>
+        <input type="text" id="range-prefix" placeholder="e.g.  EXP- or LAB-" maxlength="20">
+ 
+        <label>Barcode Format</label>
+        <div class="format-group" id="range-format-group">
+          <span class="fmt-pill selected" data-fmt="CODE128">CODE 128</span>
+          <span class="fmt-pill" data-fmt="CODE39">CODE 39</span>
+          <span class="fmt-pill" data-fmt="EAN13">EAN-13</span>
+          <span class="fmt-pill" data-fmt="UPC">UPC</span>
+        </div>
+ 
+        <label style="margin-top:1.2rem;">Bar Height (px)</label>
+        <input type="number" id="range-height" value="60" min="20" max="200">
+ 
+        <div class="error-msg" id="range-error"></div>
+ 
+        <button class="btn-generate" onclick="generateRange()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Generate Barcodes
+        </button>
+      </div>
+ 
+      <!-- Right: Output -->
+      <div class="output-card">
+        <div class="card-title">Generated Barcodes</div>
+        <div class="progress-wrap" id="range-progress-wrap">
+          <div class="progress-bar" id="range-progress-bar" style="width:0%"></div>
+        </div>
+        <div class="meta-row" id="range-meta" style="display:none">
+          <span>Results</span>
+          <span class="count-badge" id="range-count">0 barcodes</span>
+        </div>
+        <div id="range-output">
+          <div class="barcode-canvas-area" style="min-height:200px; flex-direction:column; gap:8px;">
+            <span class="icon-bc">|||  |||  |</span>
+            <div class="placeholder-msg">Set a range above and click Generate</div>
+          </div>
+        </div>
+        <div class="dl-actions" id="range-dl" style="display:none">
+          <button class="btn-secondary" onclick="downloadAllSVG()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download All SVG
+          </button>
+          <button class="btn-secondary" onclick="downloadAllPNG()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download All PNG
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- PANEL: CUSTOM TEXT -->
+  <div class="panel" id="panel-text">
+    <div class="panel-grid">
+      <!-- Left -->
+      <div class="card">
+        <div class="card-title">Custom Barcode Input</div>
+ 
+        <label>Enter Text or Number</label>
+        <input type="text" id="text-input" placeholder="e.g. EXP-STUDENT-2024" maxlength="80">
+        <div class="hint">Supports alphanumeric text, codes, IDs, and short phrases.</div>
+ 
+        <label>Barcode Format</label>
+        <div class="format-group" id="text-format-group">
+          <span class="fmt-pill selected" data-fmt="CODE128">CODE 128</span>
+          <span class="fmt-pill" data-fmt="CODE39">CODE 39</span>
+          <span class="fmt-pill" data-fmt="EAN13">EAN-13</span>
+          <span class="fmt-pill" data-fmt="UPC">UPC</span>
+          <span class="fmt-pill" data-fmt="MSI">MSI</span>
+        </div>
+ 
+        <label style="margin-top:1.2rem;">Bar Height (px)</label>
+        <div class="input-row">
+          <div>
+            <input type="number" id="text-height" value="80" min="20" max="200">
+          </div>
+          <div>
+            <label style="margin-top:0;">Width Scale</label>
+            <input type="number" id="text-width" value="2" min="1" max="4" step="0.5">
+          </div>
+        </div>
+ 
+        <label>Show Text Below Bars</label>
+        <select id="text-displayvalue">
+          <option value="true">Yes — show value</option>
+          <option value="false">No — hide value</option>
+        </select>
+ 
+        <div class="error-msg" id="text-error"></div>
+ 
+        <button class="btn-generate" onclick="generateText()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Generate Barcode
+        </button>
+      </div>
+ 
+      <!-- Right -->
+      <div class="output-card">
+        <div class="card-title">Preview</div>
+        <div class="barcode-canvas-area" id="text-output-area">
+          <div style="text-align:center;">
+            <span class="icon-bc">||| || |||</span>
+            <div class="placeholder-msg">Enter text above and click Generate</div>
+          </div>
+        </div>
+        <div class="dl-actions" id="text-dl" style="display:none; margin-top: 1rem;">
+          <button class="btn-secondary" onclick="downloadTextSVG()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Save as SVG
+          </button>
+          <button class="btn-secondary" onclick="downloadTextPNG()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Save as PNG
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+</div>
+ 
+<!-- FOOTER -->
+<footer>
+  <strong>Experimind Labs</strong> &nbsp;·&nbsp; Innovation for Education &nbsp;·&nbsp; Barcode Generator Tool
+</footer>
+ 
+<!-- HIDDEN SVG WORKSPACE -->
+<div id="svg-workspace" style="position:absolute;left:-9999px;top:0;visibility:hidden;"></div>
+ 
+<script>
+// ─── FORMAT PILLS ───────────────────────────────────────────
+document.querySelectorAll('#range-format-group .fmt-pill').forEach(p => {
+  p.addEventListener('click', () => {
+    document.querySelectorAll('#range-format-group .fmt-pill').forEach(x => x.classList.remove('selected'));
+    p.classList.add('selected');
+  });
+});
+document.querySelectorAll('#text-format-group .fmt-pill').forEach(p => {
+  p.addEventListener('click', () => {
+    document.querySelectorAll('#text-format-group .fmt-pill').forEach(x => x.classList.remove('selected'));
+    p.classList.add('selected');
+  });
+});
+ 
+// ─── TAB SWITCH ─────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+ 
+// ─── HELPERS ────────────────────────────────────────────────
+function getSelectedFmt(groupId) {
+  const sel = document.querySelector('#' + groupId + ' .fmt-pill.selected');
+  return sel ? sel.dataset.fmt : 'CODE128';
+}
+ 
+function makeSVGElement() {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  return svg;
+}
+ 
+function generateBarcodeSVG(value, format, height, width, displayValue) {
+  const svgEl = makeSVGElement();
+  try {
+    JsBarcode(svgEl, String(value), {
+      format: format,
+      height: height || 60,
+      width: width || 2,
+      displayValue: displayValue !== false,
+      margin: 10,
+      background: '#ffffff',
+      lineColor: '#0D1B2A',
+      fontOptions: '',
+      font: 'Space Mono',
+      fontSize: 13,
+      textMargin: 6,
+    });
+    return { svg: svgEl, ok: true };
+  } catch(e) {
+    return { svg: null, ok: false, error: e.message };
+  }
+}
+ 
+function svgToDataURL(svgEl) {
+  const serializer = new XMLSerializer();
+  let src = serializer.serializeToString(svgEl);
+  if (!src.includes('xmlns=')) src = src.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(src);
+}
+ 
+function svgToPNGDataURL(svgEl, cb) {
+  const serializer = new XMLSerializer();
+  let src = serializer.serializeToString(svgEl);
+  if (!src.includes('xmlns=')) src = src.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+  const w = parseInt(svgEl.getAttribute('width')) || 300;
+  const h = parseInt(svgEl.getAttribute('height')) || 120;
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, w, h);
+    ctx.drawImage(img, 0, 0);
+    cb(canvas.toDataURL('image/png'));
+  };
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(src);
+}
+ 
+function downloadBlob(href, filename) {
+  const a = document.createElement('a');
+  a.href = href;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+ 
+// ─── RANGE GENERATOR ────────────────────────────────────────
+let rangeResults = [];
+ 
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
+}
+ 
+function generateRange() {
+  showError('range-error', '');
+  const start = parseInt(document.getElementById('range-start').value);
+  const end = parseInt(document.getElementById('range-end').value);
+  const prefix = document.getElementById('range-prefix').value.trim();
+  const height = parseInt(document.getElementById('range-height').value) || 60;
+  const format = getSelectedFmt('range-format-group');
+ 
+  if (isNaN(start) || isNaN(end)) { showError('range-error', 'Please enter valid start and end numbers.'); return; }
+  if (end < start) { showError('range-error', 'End number must be greater than or equal to start.'); return; }
+  if (end - start > 500) { showError('range-error', 'Maximum 500 barcodes per batch.'); return; }
+ 
+  rangeResults = [];
+  const count = end - start + 1;
+  const outDiv = document.getElementById('range-output');
+  const pwrap = document.getElementById('range-progress-wrap');
+  const pbar = document.getElementById('range-progress-bar');
+  pwrap.style.display = 'block';
+  pbar.style.width = '0%';
+  outDiv.innerHTML = '';
+ 
+  const scrollDiv = document.createElement('div');
+  scrollDiv.className = 'batch-scroll';
+  outDiv.appendChild(scrollDiv);
+ 
+  let i = start;
+  function processNext() {
+    if (i > end) {
+      pwrap.style.display = 'none';
+      document.getElementById('range-meta').style.display = 'flex';
+      document.getElementById('range-count').textContent = count + ' barcode' + (count !== 1 ? 's' : '');
+      document.getElementById('range-dl').style.display = 'flex';
+      return;
+    }
+    const pct = Math.round(((i - start) / count) * 100);
+    pbar.style.width = pct + '%';
+ 
+    const value = prefix + i;
+    const result = generateBarcodeSVG(value, format, height, 2, true);
+    if (result.ok) {
+      rangeResults.push({ value, svgEl: result.svg });
+      const item = document.createElement('div');
+      item.className = 'bc-item';
+      const svgClone = result.svg.cloneNode(true);
+      svgClone.setAttribute('width', '180');
+      svgClone.setAttribute('height', '70');
+      item.appendChild(svgClone);
+      const lbl = document.createElement('span');
+      lbl.className = 'bc-label';
+      lbl.textContent = value;
+      item.appendChild(lbl);
+      const dlBtn = document.createElement('button');
+      dlBtn.className = 'btn-dl-single';
+      dlBtn.textContent = '↓ SVG';
+      const capturedIdx = rangeResults.length - 1;
+      dlBtn.onclick = () => downloadSingleSVG(capturedIdx);
+      item.appendChild(dlBtn);
+      scrollDiv.appendChild(item);
+    }
+    i++;
+    setTimeout(processNext, 0);
+  }
+  processNext();
+}
+ 
+function downloadSingleSVG(idx) {
+  const { value, svgEl } = rangeResults[idx];
+  const url = svgToDataURL(svgEl);
+  downloadBlob(url, 'barcode-' + value + '.svg');
+}
+ 
+function downloadAllSVG() {
+  rangeResults.forEach(({ value, svgEl }) => {
+    const url = svgToDataURL(svgEl);
+    downloadBlob(url, 'barcode-' + value + '.svg');
+  });
+}
+ 
+function downloadAllPNG() {
+  let idx = 0;
+  function next() {
+    if (idx >= rangeResults.length) return;
+    const { value, svgEl } = rangeResults[idx];
+    svgToPNGDataURL(svgEl, (dataUrl) => {
+      downloadBlob(dataUrl, 'barcode-' + value + '.png');
+      idx++;
+      setTimeout(next, 80);
+    });
+  }
+  next();
+}
+ 
+// ─── TEXT GENERATOR ─────────────────────────────────────────
+let textSVGEl = null;
+ 
+function generateText() {
+  showError('text-error', '');
+  const val = document.getElementById('text-input').value.trim();
+  if (!val) { showError('text-error', 'Please enter some text or a number.'); return; }
+  const height = parseInt(document.getElementById('text-height').value) || 80;
+  const width = parseFloat(document.getElementById('text-width').value) || 2;
+  const displayValue = document.getElementById('text-displayvalue').value === 'true';
+  const format = getSelectedFmt('text-format-group');
+ 
+  const result = generateBarcodeSVG(val, format, height, width, displayValue);
+  const area = document.getElementById('text-output-area');
+ 
+  if (!result.ok) {
+    showError('text-error', 'Could not generate barcode: ' + (result.error || 'Invalid input for selected format.'));
+    return;
+  }
+ 
+  textSVGEl = result.svg;
+  area.innerHTML = '';
+  const clone = result.svg.cloneNode(true);
+  clone.style.maxWidth = '100%';
+  area.appendChild(clone);
+  document.getElementById('text-dl').style.display = 'flex';
+}
+ 
+function downloadTextSVG() {
+  if (!textSVGEl) return;
+  const val = document.getElementById('text-input').value.trim() || 'barcode';
+  downloadBlob(svgToDataURL(textSVGEl), 'barcode-' + val + '.svg');
+}
+ 
+function downloadTextPNG() {
+  if (!textSVGEl) return;
+  const val = document.getElementById('text-input').value.trim() || 'barcode';
+  svgToPNGDataURL(textSVGEl, (url) => downloadBlob(url, 'barcode-' + val + '.png'));
+}
+ 
+// Live preview on Enter
+document.getElementById('text-input').addEventListener('keyup', (e) => {
+  if (e.key === 'Enter') generateText();
+});
+</script>
+</body>
+</html>
