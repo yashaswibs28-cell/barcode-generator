@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Barcode Generator — Experimind Labs</title>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
-<!-- jsPDF for PDF export -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -56,18 +55,6 @@
     align-items: center;
     gap: 12px;
   }
-
-  .logo-icon {
-    width: 38px;
-    height: 38px;
-    background: var(--blue-mid);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .logo-icon svg { fill: white; }
 
   .logo-text {
     display: flex;
@@ -175,17 +162,11 @@
   }
 
   .tab-btn:hover:not(.active) { background: var(--blue-light); color: var(--blue-mid); }
-
-  .tab-icon {
-    width: 16px;
-    height: 16px;
-    opacity: 0.8;
-  }
+  .tab-icon { width: 16px; height: 16px; opacity: 0.8; }
 
   /* PANELS */
   .panel { display: none; }
   .panel.active { display: block; }
-
   .panel-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -230,7 +211,6 @@
     margin-bottom: 6px;
     margin-top: 1rem;
   }
-
   label:first-of-type { margin-top: 0; }
 
   input[type="number"],
@@ -259,12 +239,7 @@
     grid-template-columns: 1fr 1fr;
     gap: 10px;
   }
-
-  .hint {
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-top: 5px;
-  }
+  .hint { font-size: 12px; color: var(--text-muted); margin-top: 5px; }
 
   /* GENERATE BUTTON */
   .btn-generate {
@@ -312,7 +287,6 @@
     margin-bottom: 1rem;
     overflow-x: auto;
   }
-
   .barcode-canvas-area svg { max-width: 100%; }
 
   .placeholder-msg {
@@ -320,7 +294,6 @@
     color: var(--text-muted);
     font-size: 13px;
   }
-
   .placeholder-msg .icon-bc {
     font-family: 'Space Mono', monospace;
     font-size: 30px;
@@ -339,7 +312,6 @@
     gap: 10px;
     padding-right: 4px;
   }
-
   .batch-scroll::-webkit-scrollbar { width: 4px; }
   .batch-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
@@ -353,9 +325,7 @@
     justify-content: space-between;
     gap: 10px;
   }
-
   .bc-item svg { flex-shrink: 0; }
-
   .bc-label {
     font-family: 'Space Mono', monospace;
     font-size: 12px;
@@ -376,7 +346,6 @@
     transition: all 0.15s;
     white-space: nowrap;
   }
-
   .btn-dl-single:hover { background: var(--blue-light); border-color: var(--blue-soft); }
 
   /* DOWNLOAD ACTIONS */
@@ -405,10 +374,8 @@
     justify-content: center;
     gap: 6px;
   }
-
   .btn-secondary:hover { border-color: var(--blue-mid); color: var(--blue-mid); background: var(--blue-light); }
 
-  /* PDF button accent */
   .btn-secondary.btn-pdf {
     border-color: #C0392B;
     color: #C0392B;
@@ -429,7 +396,6 @@
     padding-bottom: 0.75rem;
     border-bottom: 1px solid var(--border);
   }
-
   .meta-row .count-badge {
     background: var(--teal-light);
     color: var(--teal);
@@ -459,7 +425,6 @@
     background: var(--bg);
     font-family: 'DM Sans', sans-serif;
   }
-
   .fmt-pill.selected { border-color: var(--blue-mid); background: var(--blue-light); color: var(--blue-mid); }
 
   /* FOOTER */
@@ -471,7 +436,6 @@
     padding: 1.25rem;
     letter-spacing: 0.04em;
   }
-
   footer strong { color: rgba(255,255,255,0.85); }
 
   /* PROGRESS BAR */
@@ -501,7 +465,6 @@
     display: none;
   }
 
-  /* PDF generating toast */
   .toast {
     position: fixed;
     bottom: 24px;
@@ -532,13 +495,10 @@
 </head>
 <body>
 
-<!-- TOAST -->
 <div class="toast" id="toast">Generating PDF…</div>
 
-<!-- HEADER -->
 <header>
   <div class="logo-area">
-  
     <div class="logo-text">
       <span class="brand">EXPERIMIND LABS</span>
       <span class="tagline">Innovation for Education</span>
@@ -547,7 +507,6 @@
   <div class="header-badge">Barcode Generator</div>
 </header>
 
-<!-- HERO -->
 <div class="hero">
   <div class="hero-inner">
     <h1>Barcode Generator Tool</h1>
@@ -569,10 +528,7 @@
   </div>
 </div>
 
-<!-- MAIN -->
 <div class="main">
-
-  <!-- TABS -->
   <div class="tab-row">
     <button class="tab-btn active" onclick="switchTab('range')" id="tab-range">
       <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="3" height="14"/><rect x="7" y="5" width="1.5" height="14"/><rect x="10.5" y="5" width="3" height="14"/><rect x="15.5" y="5" width="1.5" height="14"/><rect x="19" y="5" width="3" height="14"/></svg>
@@ -584,18 +540,16 @@
     </button>
   </div>
 
-  <!-- PANEL: RANGE -->
   <div class="panel active" id="panel-range">
     <div class="panel-grid">
-      <!-- Left: Config -->
       <div class="card">
         <div class="card-title">Range Configuration</div>
 
         <label>Start Number</label>
-        <input type="number" id="range-start" value="1001" min="0">
+        <input type="number" id="range-start" value="1" min="0">
 
         <label>End Number</label>
-        <input type="number" id="range-end" value="1010" min="0">
+        <input type="number" id="range-end" value="100" min="0">
 
         <label>Prefix (optional)</label>
         <input type="text" id="range-prefix" placeholder="e.g.  EXP- or LAB-" maxlength="20">
@@ -609,7 +563,7 @@
         </div>
 
         <label style="margin-top:1.2rem;">Bar Height (px)</label>
-        <input type="number" id="range-height" value="60" min="20" max="200">
+        <input type="number" id="range-height" value="20" min="20" max="200">
 
         <div class="error-msg" id="range-error"></div>
 
@@ -619,7 +573,6 @@
         </button>
       </div>
 
-      <!-- Right: Output -->
       <div class="output-card">
         <div class="card-title">Generated Barcodes</div>
         <div class="progress-wrap" id="range-progress-wrap">
@@ -644,7 +597,6 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Download All PNG
           </button>
-          <!-- ★ NEW: Download All PDF button -->
           <button class="btn-secondary btn-pdf" onclick="downloadAllPDF()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
             Download PDF
@@ -654,10 +606,8 @@
     </div>
   </div>
 
-  <!-- PANEL: CUSTOM TEXT -->
   <div class="panel" id="panel-text">
     <div class="panel-grid">
-      <!-- Left -->
       <div class="card">
         <div class="card-title">Custom Barcode Input</div>
 
@@ -699,7 +649,6 @@
         </button>
       </div>
 
-      <!-- Right -->
       <div class="output-card">
         <div class="card-title">Preview</div>
         <div class="barcode-canvas-area" id="text-output-area">
@@ -717,7 +666,6 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Save as PNG
           </button>
-          <!-- ★ NEW: Save as PDF button for custom text -->
           <button class="btn-secondary btn-pdf" onclick="downloadTextPDF()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
             Save as PDF
@@ -726,15 +674,12 @@
       </div>
     </div>
   </div>
-
 </div>
 
-<!-- FOOTER -->
 <footer>
   <strong>Experimind Labs</strong> &nbsp;·&nbsp; Innovation for Education &nbsp;·&nbsp; Barcode Generator Tool
 </footer>
 
-<!-- HIDDEN SVG WORKSPACE -->
 <div id="svg-workspace" style="position:absolute;left:-9999px;top:0;visibility:hidden;"></div>
 
 <script>
@@ -785,7 +730,7 @@ function generateBarcodeSVG(value, format, height, width, displayValue) {
   try {
     JsBarcode(svgEl, String(value), {
       format: format,
-      height: height || 60,
+      height: height || 20,
       width: width || 2,
       displayValue: displayValue !== false,
       margin: 10,
@@ -837,8 +782,6 @@ function downloadBlob(href, filename) {
   document.body.removeChild(a);
 }
 
-// ─── PDF HELPERS ─────────────────────────────────────────────
-// Convert an SVG element to a PNG data URL at a given render size
 function svgToPNGAtSize(svgEl, renderW, renderH, cb) {
   const serializer = new XMLSerializer();
   let src = serializer.serializeToString(svgEl);
@@ -858,102 +801,62 @@ function svgToPNGAtSize(svgEl, renderW, renderH, cb) {
 }
 
 /**
- * ★ CORE PDF FUNCTION
- * Builds a jsPDF document with barcodes laid out in a 2-column grid.
- * Each cell: label on top, barcode image below, bordered box.
- * @param {Array} items  — array of { value, svgEl }
- * @param {string} filename
+ * ★ MODIFIED CORE PDF FUNCTION
+ * Left-to-right horizontal printing with exactly 6 columns per page.
  */
 function buildAndDownloadPDF(items, filename) {
   showToast('Generating PDF…', 10000);
 
   const { jsPDF } = window.jspdf;
 
-  // A4 page dims in mm
+  // A4 Page dimensions (mm)
   const PAGE_W = 210;
   const PAGE_H = 297;
+  
+  const MARGIN_X = 15;        // Left & Right page margins
+  const START_Y  = 15;        // Top margin
+  const COLS     = 6;         // Exactly 6 columns horizontally
+  const CELL_W   = (PAGE_W - (MARGIN_X * 2)) / COLS; // Exactly 30mm width per card column
+  const CELL_H   = 15;        // Compact vertical box height
 
-  // Layout constants (mm)
-  const MARGIN     = 12;        // page margin
-  const COLS       = 2;
-  const GAP        = 6;         // gap between columns
-  const CELL_W     = (PAGE_W - MARGIN * 2 - GAP * (COLS - 1)) / COLS;  // ~91 mm
-  const CELL_H     = 44;        // height of each cell
-  const LABEL_H    = 6;         // label text area
-  const BC_H       = CELL_H - LABEL_H - 4;  // barcode image height inside cell
-  const ROW_GAP    = 5;         // vertical gap between rows
-
-  // Render size for canvas (pixels) — higher = sharper
-  const RENDER_SCALE = 3;
+  // Scale optimization for smaller rendering spaces
+  const RENDER_SCALE = 4;
   const RENDER_W = Math.round(CELL_W * RENDER_SCALE * (96 / 25.4));
-  const RENDER_H = Math.round(BC_H   * RENDER_SCALE * (96 / 25.4));
+  const RENDER_H = Math.round(CELL_H * RENDER_SCALE * (96 / 25.4));
 
   const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
 
-  // Header
-  const HEADER_H = 14;
-  doc.setFillColor(4, 44, 83);
-  doc.rect(0, 0, PAGE_W, HEADER_H, 'F');
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'bold');
-  doc.text('EXPERIMIND LABS — Barcode Sheet', MARGIN, 9);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7);
-  doc.text('Generated: ' + new Date().toLocaleString(), PAGE_W - MARGIN, 9, { align: 'right' });
+  let currentY = START_Y;
+  let colIndex = 0;
 
-  let currentY = HEADER_H + 6;
-  let col = 0;
-
-  // Process each barcode sequentially (async via Promise chain)
   let chain = Promise.resolve();
 
   items.forEach((item, idx) => {
     chain = chain.then(() => new Promise(resolve => {
       svgToPNGAtSize(item.svgEl, RENDER_W, RENDER_H, (pngDataUrl) => {
-        // Check if we need a new page
-        if (currentY + CELL_H > PAGE_H - MARGIN) {
+        
+        // Page overflow check
+        if (currentY + CELL_H > PAGE_H - 15) {
           doc.addPage();
-          // Repeat header on new page
-          doc.setFillColor(4, 44, 83);
-          doc.rect(0, 0, PAGE_W, HEADER_H, 'F');
-          doc.setTextColor(255, 255, 255);
-          doc.setFontSize(9);
-          doc.setFont('helvetica', 'bold');
-          doc.text('EXPERIMIND LABS — Barcode Sheet', MARGIN, 9);
-          doc.setFont('helvetica', 'normal');
-          doc.setFontSize(7);
-          doc.text('Generated: ' + new Date().toLocaleString(), PAGE_W - MARGIN, 9, { align: 'right' });
-          currentY = HEADER_H + 6;
-          col = 0;
+          currentY = START_Y;
+          colIndex = 0;
         }
 
-        const x = MARGIN + col * (CELL_W + GAP);
-        const y = currentY;
+        // Left-to-right horizontal coordinate calculation
+        const currentX = MARGIN_X + (colIndex * CELL_W);
 
-        // Cell border
-        doc.setDrawColor(221, 228, 238);
-        doc.setLineWidth(0.3);
-        doc.roundedRect(x, y, CELL_W, CELL_H, 2, 2, 'S');
+        // Render fine boundary grey borders flush against each other
+        doc.setDrawColor(148, 163, 184); 
+        doc.setLineWidth(0.1);           
+        doc.rect(currentX, currentY, CELL_W, CELL_H, 'S');
 
-        // Label text (centered)
-        doc.setTextColor(74, 90, 110);
-        doc.setFontSize(7.5);
-        doc.setFont('helvetica', 'bold');
-        doc.text(String(item.value), x + CELL_W / 2, y + LABEL_H - 1, { align: 'center' });
+        // Draw barcode image with tight inner paddings to fit the 6-col width nicely
+        doc.addImage(pngDataUrl, 'PNG', currentX + 1.5, currentY + 1.5, CELL_W - 3, CELL_H - 3);
 
-        // Barcode image
-        const imgX = x + 2;
-        const imgY = y + LABEL_H;
-        const imgW = CELL_W - 4;
-        const imgH = BC_H;
-        doc.addImage(pngDataUrl, 'PNG', imgX, imgY, imgW, imgH);
-
-        // Advance column / row
-        col++;
-        if (col >= COLS) {
-          col = 0;
-          currentY += CELL_H + ROW_GAP;
+        colIndex++;
+        if (colIndex >= COLS) {
+          colIndex = 0;
+          currentY += CELL_H; // Move to the next line row once 6 items are filled horizontally
         }
 
         resolve();
@@ -962,19 +865,6 @@ function buildAndDownloadPDF(items, filename) {
   });
 
   chain.then(() => {
-    // Footer on last page
-    const totalPages = doc.getNumberOfPages();
-    for (let p = 1; p <= totalPages; p++) {
-      doc.setPage(p);
-      doc.setDrawColor(221, 228, 238);
-      doc.setLineWidth(0.3);
-      doc.line(MARGIN, PAGE_H - 8, PAGE_W - MARGIN, PAGE_H - 8);
-      doc.setTextColor(136, 152, 170);
-      doc.setFontSize(7);
-      doc.setFont('helvetica', 'normal');
-      doc.text('Experimind Labs · Barcode Generator', MARGIN, PAGE_H - 4);
-      doc.text('Page ' + p + ' of ' + totalPages, PAGE_W - MARGIN, PAGE_H - 4, { align: 'right' });
-    }
     doc.save(filename);
     showToast('✓ PDF downloaded!', 2500);
   });
@@ -1081,7 +971,6 @@ function downloadAllPNG() {
   next();
 }
 
-// ★ NEW: Download all range barcodes as a single PDF (2 columns)
 function downloadAllPDF() {
   if (!rangeResults.length) return;
   const prefix = document.getElementById('range-prefix').value.trim() || 'barcodes';
@@ -1128,13 +1017,11 @@ function downloadTextPNG() {
   svgToPNGDataURL(textSVGEl, (url) => downloadBlob(url, 'barcode-' + textValue + '.png'));
 }
 
-// ★ NEW: Save custom text barcode as PDF
 function downloadTextPDF() {
   if (!textSVGEl) return;
   buildAndDownloadPDF([{ value: textValue, svgEl: textSVGEl }], 'barcode-' + textValue + '.pdf');
 }
 
-// Live preview on Enter
 document.getElementById('text-input').addEventListener('keyup', (e) => {
   if (e.key === 'Enter') generateText();
 });
